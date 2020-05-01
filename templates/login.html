@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="google-signin-client_id" content="97700423682-vs263g2opsvbbeeq10pr57qbtqcc2e37.apps.googleusercontent.com">
+  <title>Admin | Log in</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.7 -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.min.css') }}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/ionicons.min.css') }}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/AdminLTE.min.css') }}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap-datepicker.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/daterangepicker.css') }}">
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition login-page">
+
+<div class="login-box" id="login">
+	<div class="login-logo">
+		<a><b>Admin</b>Panel</a>
+	</div>
+	<!-- /.login-logo -->
+	<div class="login-box-body">
+		<p class="login-box-msg">Sign in to start your session</p>
+		<section v-if="errored">
+			<p>{% raw %}{{message}}{% endraw %}</p>
+		</section>
+		<form>
+			<div class="form-group has-feedback">
+				<input type="email" class="form-control" placeholder="Email" pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$" v-model="emailid" required>
+				<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+			</div>
+			<div class="form-group has-feedback">
+				<input type="password" class="form-control" placeholder="Password" v-model="pwd" required>
+				<span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			</div>
+			<div class="row">
+				<div class="col-xs-8">
+					<div class="checkbox icheck">
+						<label>
+						  <input type="checkbox"> Remember Me
+						</label>
+					</div>
+				</div>
+				<!-- /.col -->
+				<div class="col-xs-4">
+					<!--button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button-->
+					<button :disabled="!!disableButton" type="button" class="btn btn-primary btn-block btn-flat" v-on:click="login()">LogIn</button>
+				</div>
+				<!-- /.col -->
+			</div>
+		</form>
+
+		<div class="social-auth-links text-center">
+		  <p>- OR -</p>
+			<!--a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Sign in using
+				Facebook</a-->
+			<!--a href="/api/v1/google/signin" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
+				Google+</a-->
+			<!--div class="g-signin2" data-onsuccess="onSignIn"></div-->
+			 <div id="google-signin-button"></div>
+		</div>
+		<!-- /.social-auth-links -->
+
+		<a href="/admin/forgotPassword">I forgot my password</a><br>
+		<a href="/admin/signup" class="text-center">Register a new membership</a>
+	</div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery 3 -->
+<!-- jQuery 3 -->
+<script src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+<!-- iCheck -->
+<script src="{{ url_for('static',filename='js/icheck.min.js') }}"></script>
+<!--script src="https://unpkg.com/axios/dist/axios.min.js"></script-->
+<script src="{{ url_for('static',filename='js/axios.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/vue.js') }}"></script>
+<script src="{{ url_for('static',filename='js/client.js') }}"></script>
+<script src="{{ url_for('static',filename='js/platform.js') }}"></script>
+<script>
+new Vue({
+	el: '#login',
+	data () {
+		return {
+			info: null,
+			errored: false,
+			disableButton: false,
+			emailid: null,
+			pwd: null,
+			content: null
+		}
+	},
+	//mounted() {
+		//gapi.signin2.render('google-signin-button', {
+			//onsuccess: this.onSignIn
+		//})
+	//},
+	methods: {
+		onSignIn(user){
+			const profile = user.getBasicProfile()
+			const headers = {
+				'Content-Type': 'multipart/form-data',
+				'signInType':'google'
+			};
+			var formData = new FormData()
+			var rawData = {
+				emailid: profile.getEmail()
+			}
+			rawData = JSON.stringify(rawData)
+			formData.append('data', rawData)
+			axios
+			.post('http://localhost:5000/admin/login', formData, {headers})
+			.then(response => {
+				console.log("Google user")
+				console.log(response.data)
+				window.location.href=response.data.url
+			})
+			.catch(error => {
+				this.disableButton=false
+				console.log(error)
+				if(error.response!='undefined'){
+					console.log(error.response.data.error)
+					this.message = error.response.data.error
+					this.errored = true
+				}else{
+					this.message = error
+					this.errored = true
+				}
+						
+			})
+		},
+		login(){
+			if(this.emailid){
+				if(this.pwd){
+					this.disableButton=true
+					const headers = {
+						'Content-Type': 'multipart/form-data',
+						'signInType':'adminuser'
+					};
+					var formData = new FormData()
+					var rawData = {
+						password: this.pwd,
+						emailid: this.emailid
+					}
+					rawData = JSON.stringify(rawData)
+					formData.append('data', rawData)
+					axios
+					.post('http://localhost:5000/admin/login', formData, {headers})
+					.then(response => {
+						this.disableButton=false
+						console.log("Not a Google LogIn")
+						console.log(response.data)
+						window.location.href=response.data.url
+					})
+					.catch(error => {
+						this.disableButton=false
+						if(error.response!='undefined'){
+							console.log(error.response.data.error)
+							this.message = error.response.data.error
+							this.errored = true
+						}else{
+							this.message = error
+							this.errored = true
+						}
+								
+					})
+				}else{
+					this.message = "Password required"
+					this.errored = true
+					this.disableButton=false
+				}
+			}else{
+				this.message = "Emailid required"
+				this.errored = true
+				this.disableButton=false
+			}
+		}
+	}
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+	"SMS_URL":"https://www.fast2sms.com/dev/bulk",
+	"SMS_API_KEY":"G15i9sN8wkOIdLEbcZmAfUPe6WHY3laCyB4S2KRgzuvoMrVJjQXQz7HP1RnWAJyM5w4m9qijEhCuFTBK",
+	"TEMPLATE_ID":26033,
+	"MAIL_SERVER": "smtp.gmail.com",
+	"MAIL_PORT":587
+
+}
